@@ -9,6 +9,8 @@ Ricardo Ribeiro Vieira up202005091 - 50%
 
 ## Installation and Execution
 
+To execute the game you simple need to download the zip file, navigate to the src directory and consult the main.pl file inside the comand line or the UI in SICStus Prolog version 4.8(this was the version the game was made on). The game works both on Windows and Linux.
+
 ## Description of the game
 
 "Dropper" is an engrossing and strategic board game that combines tactical placement, clever maneuvers, and an intense quest for territorial supremacy. Players will face off on an 8x8 board, although variations of the game can be played on boards of different sizes, making it adaptable to your preferred challenge level.
