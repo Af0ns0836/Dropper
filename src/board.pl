@@ -1,13 +1,13 @@
 % Define the game board as an 8x8 grid.
 board([
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty]
+    ['X', 'O', 'X', 'O', 'O', 'X', 'X', 'X'],
+    ['O', 'X', 'O', 'X', 'X', 'O', 'O', 'X'],
+    ['X', 'O', 'X', 'O', 'O', 'X', 'X', 'X'],
+    ['O', 'X', 'O', 'X', 'X', 'O', 'O', 'X'],
+    ['X', 'O', 'X', 'O', 'O', 'X', 'X', 'O'],
+    ['O', 'X', 'O', 'X', 'X', 'O', 'O', 'X'],
+    ['X', 'O', 'X', 'O', 'O', 'X', 'X', 'X'],
+    ['O', 'X', 'O', 'X', 'X', 'O', 'O', 'empty']
 ]).
 
 % Define the possible player pieces.
@@ -18,9 +18,10 @@ columns([0, 1, 2, 3, 4, 5, 6, 7]).
 
 % Predicate to display the 8x8 board.
 display_board(Board) :-
-    display_board_column_labels,
+    display_column_labels,
     display_board_rows(Board, 0).
 
+% Predicate to display the board rows.
 display_board_rows([Row], N) :-
     write(N), write(' '),
     display_row(Row),
@@ -39,20 +40,23 @@ display_row([Cell | Rest]) :-
     write(' | '), display_cell(Cell),
     display_row(Rest).
 
+% Predicate to display a cell.
 display_cell(empty) :- write('   ').
 display_cell(Cell) :- write(' '), write(Cell), write(' ').
 
+% Predicate to display the column labels.
 display_columns(Cols) :-
-    write('      '),     % Initial spacing
+    write(' '),     % Initial spacing
     display_columns_with_spacing(Cols).
 
+% Predicate to display the column labels with spacing.
 display_columns_with_spacing([]).
 display_columns_with_spacing([Col | Rest]) :-
     write(Col),       % Display the column label
     write('     '),      % Add two spaces for spacing
     display_columns_with_spacing(Rest).
 
-% predicate to display the column labels.
+% Predicate to display the column labels.
 display_column_labels :-
     columns(Cols),
     write('     '),

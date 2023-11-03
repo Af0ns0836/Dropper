@@ -1,65 +1,4 @@
-% Define the game board as an 8x8 grid.
-board([
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty],
-    [empty, empty, empty, empty, empty, empty, empty, empty]
-]).
-
-% Define the possible player pieces.
-player_piece(player1, 'X').
-player_piece(player2, 'O').
-
-columns([0, 1, 2, 3, 4, 5, 6, 7]).
-
-% Predicate to display the 8x8 board.
-display_board(Board) :-
-    display_column_labels,
-    display_board_rows(Board, 0).
-
-display_board_rows([Row], N) :-
-    write(N), write(' '),
-    display_row(Row),
-    nl,
-    write('   ------------------------------------------------\n').
-display_board_rows([Row | Rest], N) :-
-    write(N), write(' '),
-    display_row(Row),
-    nl,
-    write('   ------------------------------------------------\n'),
-    NextN is N + 1,
-    display_board_rows(Rest, NextN).
-
-display_row([]).
-display_row([Cell | Rest]) :-
-    write(' | '), display_cell(Cell),
-    display_row(Rest).
-
-display_cell(empty) :- write('   ').
-display_cell(Cell) :- write(' '), write(Cell), write(' ').
-
-% Predicate to display the column labels.
-display_columns(Cols) :-
-    write(' '),     % Initial spacing
-    display_columns_with_spacing(Cols).
-
-% Predicate to display the column labels with spacing.
-display_columns_with_spacing([]).
-display_columns_with_spacing([Col | Rest]) :-
-    write(Col),       % Display the column label
-    write('     '),      % Add two spaces for spacing
-    display_columns_with_spacing(Rest).
-
-% Predicate to display the column labels.
-display_column_labels :-
-    columns(Cols),
-    write('     '),
-    display_columns(Cols),
-    nl.
+:- consult('board.pl').
 
 % Makes a move on the board.
 make_move(Board, Row, Col, Piece, NewBoard) :-
@@ -101,9 +40,12 @@ replace_row([Row | Rest], Index, NewRow, [Row | UpdatedRest]) :-
     NextIndex is Index - 1,
     replace_row(Rest, NextIndex, NewRow, UpdatedRest).
 
+% count_group_size(Board, [], Row, Col, Player, Piece, Positions, GroupSize).
+
 % Predicate to count the size of a group of a given player starting from a given position (Row, Col).
 count_group_size(_, _, _, _, _, _, [], GroupSize).
 count_group_size(Board, Visited, Row, Col, Player, Piece, [(NewRow, NewCol) | Rest], GroupSize) :-
+    write('Checking position2 ('), write(NewRow), write(', '), write(NewCol), write(')...'), nl,
     % Check if the (NewRow, NewCol) position is a valid move and belongs to the same player.
     is_valid_move(Board, NewRow, NewCol),
     get_row(Board, NewRow, NewBoardRow),
@@ -117,40 +59,43 @@ count_group_size(Board, Visited, Row, Col, Player, Piece, [(NewRow, NewCol) | Re
     append(Rest, Positions, NewRest),
     NewGroupSize is GroupSize + 1,
     count_group_size(Board, NewVisited, NewRow, NewCol, Player, Piece, NewRest, NewGroupSize).
-count_group_size(Board, Visited, Row, Col, Player, Piece, [(NewRow, NewCol) | Rest], GroupSize) :-
-    % If its not a valid move or doesnt belong to the player, skip it.
-    find_adjacent_positions(Row, Col, Positions),
-    append(Rest, Positions, NewRest),
-    count_group_size(Board, Visited, Row, Col, Player, Piece, NewRest, GroupSize).
-
-% Predicate to find the group size for a player.
-group_size(Board, Player, Row, Col, GroupSize) :-
-    player_piece(Player, Piece),
-    find_adjacent_positions(Row, Col, Positions),
-    count_group_size(Board, [], Row, Col, Player, Piece, Positions, 1, GroupSize).
 
 % Predicates to find adjacent positions.
+% mesma coluna, linha acima
 find_adjacent_positions(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    NewRow is Row - 1,
-    NewCol is Col,
-    NewRow >= 0,
-    find_adjacent_positions(Row, Col, Rest).
-find_adjacent_positions(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    NewRow is Row + 1,
-    NewCol is Col,
-    NewRow < 8,
-    find_adjacent_positions(Row, Col, Rest).
-find_adjacent_positions(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    NewRow is Row,
-    NewCol is Col - 1,
-    NewCol >= 0,
-    find_adjacent_positions(Row, Col, Rest).
-find_adjacent_positions(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    NewRow is Row,
-    NewCol is Col + 1,
-    NewCol < 8,
-    find_adjacent_positions(Row, Col, Rest).
+    write('Finding adjacent positions for position1 ('), write(Row), write(', '), write(Col), write(')...'), nl,
+    NewRow1 is Row - 1,
+    NewCol1 is Col,
+    NewRow1 >= 0,
+    find_adjacent_positions2(NewRow1, NewCol1, Rest1),
+    append([(NewRow1, NewCol1)], Rest1, Rest).
+% mesma coluna, linha abaixo
+find_adjacent_positions2(Row, Col, [(NewRow, NewCol) | Rest]) :-
+    write('Finding adjacent positions for position2 ('), write(Row), write(', '), write(Col), write(')...'), nl,
+    NewRow2 is Row + 1,
+    NewCol2 is Col,
+    NewRow2 < 8,
+    find_adjacent_positions3(NewRow2, NewCol2, Rest2),
+    append([(NewRow2, NewCol2)], Rest2, Rest).
+% mesma linha, coluna a esquerda
+find_adjacent_positions3(Row, Col, [(NewRow, NewCol) | Rest]) :-
+    write('Finding adjacent positions for position3 ('), write(Row), write(', '), write(Col), write(')...'), nl,
+    NewRow3 is Row,
+    NewCol3 is Col - 1,
+    NewCol3 >= 0,
+    find_adjacent_positions4(NewRow3, NewCol3, Rest3),
+    append([(NewRow3, NewCol3)], Rest3, Rest).
+% mesma linha, coluna a direita
+find_adjacent_positions4(Row, Col, [(NewRow, NewCol) | Rest]) :-
+    write('Finding adjacent positions for position4 ('), write(Row), write(', '), write(Col), write(')...'), nl,
+    NewRow4 is Row,
+    NewCol4 is Col + 1,
+    NewCol4 < 8,
+    find_adjacent_positions(NewRow4, NewCol4, Rest4),
+    append([(NewRow4, NewCol4)], Rest4, Rest).
+%caso base
 find_adjacent_positions(_, _, []).
+
 
 
 % This assumes the game alternates between player1 and player2.
@@ -203,16 +148,31 @@ switch_player(Player, NextPlayer) :-
     Player == player2 -> NextPlayer = player1.
 
 
-% Predicate to determine the winner.
 game_over(Board, Winner) :-
+    write('Checking if game is over...'), nl,
+    % Check if there are no empty positions left
     \+ (member(Row, Board), member(empty, Row)),
-    % If no empty positions are left, determine the winner.
+    % Calculate group sizes for both players
     group_size(Board, player1, 0, 0, GroupSize1),
     group_size(Board, player2, 0, 0, GroupSize2),
+    write('Group sizes for player1: '), write(GroupSize1), nl,
+    write('Group sizes for player2: '), write(GroupSize2), nl,
     compare_winner(GroupSize1, GroupSize2, Winner).
 
+
+% Predicate to find the group size for a player.
+group_size(Board, Player, Row, Col, GroupSize) :-
+    write('Checking group size for player '), write(Player), write(' at position ('), write(Row), write(', '), write(Col), write(')...'), nl,
+    player_piece(Player, Piece),
+    find_adjacent_positions(Row, Col, Positions),
+    count_group_size(Board, [], Row, Col, Player, Piece, Positions, GroupSize).
+
+
+% compare_winner(+GroupSize1, +GroupSize2, -Winner).
 % Predicate to compare group sizes and determine the winner.
 compare_winner(GroupSize1, GroupSize2, Winner) :-
+    write('Comparing group sizes...'), nl,
     (GroupSize1 > GroupSize2 -> Winner = player1;
-    GroupSize2 > GroupSize1 -> Winner = player2).
+    GroupSize2 > GroupSize1 -> Winner = player2;
+    GroupSize1 =:= GroupSize2 -> Winner = tie).
 
