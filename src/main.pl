@@ -1,4 +1,6 @@
 :- consult('board.pl').
+:- use_module(library(lists)).
+
 
 % Makes a move on the board.
 make_move(Board, Row, Col, Piece, NewBoard) :-
@@ -39,64 +41,6 @@ replace_row([Row | Rest], Index, NewRow, [Row | UpdatedRest]) :-
     Index > 0,
     NextIndex is Index - 1,
     replace_row(Rest, NextIndex, NewRow, UpdatedRest).
-
-% count_group_size(Board, [], Row, Col, Player, Piece, Positions, GroupSize).
-
-% Predicate to count the size of a group of a given player starting from a given position (Row, Col).
-count_group_size(_, _, _, _, _, _, [], GroupSize).
-count_group_size(Board, Visited, Row, Col, Player, Piece, [(NewRow, NewCol) | Rest], GroupSize) :-
-    write('Checking position2 ('), write(NewRow), write(', '), write(NewCol), write(')...'), nl,
-    % Check if the (NewRow, NewCol) position is a valid move and belongs to the same player.
-    is_valid_move(Board, NewRow, NewCol),
-    get_row(Board, NewRow, NewBoardRow),
-    nth0(NewCol, NewBoardRow, NewBoardCell),
-    NewBoardCell == Piece,
-    \+ member((NewRow, NewCol), Visited), % Check if it hasnt been visited before.
-    % Mark it as visited.
-    append(Visited, [(NewRow, NewCol)], NewVisited),
-    % Recursively count the group size starting from (NewRow, NewCol).
-    find_adjacent_positions(NewRow, NewCol, Positions),
-    append(Rest, Positions, NewRest),
-    NewGroupSize is GroupSize + 1,
-    count_group_size(Board, NewVisited, NewRow, NewCol, Player, Piece, NewRest, NewGroupSize).
-
-% Predicates to find adjacent positions.
-% mesma coluna, linha acima
-find_adjacent_positions(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    write('Finding adjacent positions for position1 ('), write(Row), write(', '), write(Col), write(')...'), nl,
-    NewRow1 is Row - 1,
-    NewCol1 is Col,
-    NewRow1 >= 0,
-    find_adjacent_positions2(NewRow1, NewCol1, Rest1),
-    append([(NewRow1, NewCol1)], Rest1, Rest).
-% mesma coluna, linha abaixo
-find_adjacent_positions2(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    write('Finding adjacent positions for position2 ('), write(Row), write(', '), write(Col), write(')...'), nl,
-    NewRow2 is Row + 1,
-    NewCol2 is Col,
-    NewRow2 < 8,
-    find_adjacent_positions3(NewRow2, NewCol2, Rest2),
-    append([(NewRow2, NewCol2)], Rest2, Rest).
-% mesma linha, coluna a esquerda
-find_adjacent_positions3(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    write('Finding adjacent positions for position3 ('), write(Row), write(', '), write(Col), write(')...'), nl,
-    NewRow3 is Row,
-    NewCol3 is Col - 1,
-    NewCol3 >= 0,
-    find_adjacent_positions4(NewRow3, NewCol3, Rest3),
-    append([(NewRow3, NewCol3)], Rest3, Rest).
-% mesma linha, coluna a direita
-find_adjacent_positions4(Row, Col, [(NewRow, NewCol) | Rest]) :-
-    write('Finding adjacent positions for position4 ('), write(Row), write(', '), write(Col), write(')...'), nl,
-    NewRow4 is Row,
-    NewCol4 is Col + 1,
-    NewCol4 < 8,
-    find_adjacent_positions(NewRow4, NewCol4, Rest4),
-    append([(NewRow4, NewCol4)], Rest4, Rest).
-%caso base
-find_adjacent_positions(_, _, []).
-
-
 
 % This assumes the game alternates between player1 and player2.
 play(Player, Board, NewBoard) :-
@@ -148,31 +92,101 @@ switch_player(Player, NextPlayer) :-
     Player == player2 -> NextPlayer = player1.
 
 
+% game_over(+Board, -Winner).
 game_over(Board, Winner) :-
     write('Checking if game is over...'), nl,
     % Check if there are no empty positions left
     \+ (member(Row, Board), member(empty, Row)),
-    % Calculate group sizes for both players
-    group_size(Board, player1, 0, 0, GroupSize1),
-    group_size(Board, player2, 0, 0, GroupSize2),
-    write('Group sizes for player1: '), write(GroupSize1), nl,
-    write('Group sizes for player2: '), write(GroupSize2), nl,
-    compare_winner(GroupSize1, GroupSize2, Winner).
+    write('No empty positions left.'), nl,
+    check_group_size(Board, 'X', BlackGroups),
+    write('Black group count: '), write(BlackGroups), nl,
+    check_group_size(Board, 'O', WhiteGroups),
+    write('White group count: '), write(WhiteGroups), nl,
+    compare_winner(BlackGroups, WhiteGroups, Winner).
+
+% predicate to check the size of the group of pieces of a player
+check_group_size(Board, Player, SortedDescendingSizes) :-
+    write('checking group size...'), nl,
+    findall([X, Y], (member(X, [0,1,2,3,4,5,6,7]), member(Y, [0,1,2,3,4,5,6,7]), get_piece(Board, X, Y, Player)), List),
+    largest_connected_component(List, SortedDescendingSizes).
+
+element_at(0, [Elem|_], Elem).
+element_at(N, [_|Rest], Elem) :-
+    N > 0,
+    N1 is N - 1,
+    element_at(N1, Rest, Elem).
+
+% predicate that returns the piece in a certain position, first selects the row, and then the piece itself
+% arguments, Board, the row and the column and the piece will be returned in the piece variable
+get_piece(Board, Row, Column, Piece) :-
+    element_at(Row, Board, RowList),         
+    element_at(Column, RowList,Piece).
+
+:- dynamic visited/1.
 
 
-% Predicate to find the group size for a player.
-group_size(Board, Player, Row, Col, GroupSize) :-
-    write('Checking group size for player '), write(Player), write(' at position ('), write(Row), write(', '), write(Col), write(')...'), nl,
-    player_piece(Player, Piece),
-    find_adjacent_positions(Row, Col, Positions),
-    count_group_size(Board, [], Row, Col, Player, Piece, Positions, GroupSize).
+% Predicate to find the size of the largest connected component
+largest_connected_component(Points, SortedDescendingSizes) :-
+    findall(Size, (
+        member(Point, Points),
+        \+ visited(Point),  % Ensure we dont start BFS from visited points
+        bfs_from_point(Point, Points, [Point], Size),
+        asserta(visited(Point))  % Mark the starting point as visited after BFS
+    ), Sizes),
+    sort(Sizes, SortedSizes),
+    reverse(SortedSizes,SortedDescendingSizes),
+    retractall(visited(_)). % Clean up visited facts after computation
 
+% Predicate for BFS traversal from a given point
+bfs_from_point(Point, Points, Visited, Size) :-
+    bfs([Point], Points, Visited, 1, Size).
+
+% Helper predicate for BFS traversal
+bfs([], _, _, Size, Size). % Base case: no more points to traverse
+bfs([P|RestQueue], Points, Visited, CurrentSize, Size) :-
+    find_connected(P, Points, Visited, ConnectedPoints),
+    length(ConnectedPoints, NumConnected),
+    NewSize is CurrentSize + NumConnected,
+    append(RestQueue, ConnectedPoints, NewQueue),
+    append(Visited, ConnectedPoints, NewVisited),
+    bfs(NewQueue, Points, NewVisited, NewSize, Size).
+
+% Predicate to find all points connected to a given point that havent been visited
+find_connected(Point, Points, Visited, ConnectedPoints) :-
+    include(is_connected(Point, Visited), Points, ConnectedPoints).
+
+% Predicate to check if a point is connected and not visited
+is_connected([X,Y], Visited, [X1,Y1]) :-
+    adjacent([X,Y], [X1,Y1]),
+    \+ memberchk([X1,Y1], Visited).
+
+% Predicate to check if two points are adjacent and potentially connected
+adjacent([X,Y], [X1,Y1]) :-
+    (X1 is X+1, Y1 is Y);  % right
+    (X1 is X-1, Y1 is Y);  % left
+    (X1 is X, Y1 is Y+1);  % up
+    (X1 is X, Y1 is Y-1).  % down
+
+
+% Remove all instances of elements in the second list from the first list
+remove_elements(List, [], List).
+remove_elements(List, [H|T], Result) :-
+    delete(List, H, TempResult), % delete/3 is a built-in predicate
+    remove_elements(TempResult,T,Result).
 
 % compare_winner(+GroupSize1, +GroupSize2, -Winner).
 % Predicate to compare group sizes and determine the winner.
-compare_winner(GroupSize1, GroupSize2, Winner) :-
+compare_winner(BlackGroups, WhiteGroups, Winner) :-
     write('Comparing group sizes...'), nl,
-    (GroupSize1 > GroupSize2 -> Winner = player1;
-    GroupSize2 > GroupSize1 -> Winner = player2;
-    GroupSize1 =:= GroupSize2 -> Winner = tie).
+    compare_lists(BlackGroups, WhiteGroups, Winner).
 
+
+% Compare two lists element by element
+compare_lists([], [], Winner) :-
+   Winner = 'Draw'. % Both lists are equal.
+
+% compare_list(+List1, +List2, -Winner).
+compare_lists([X|Xs], [Y|Ys], Winner) :-
+    (write('Comparing '),write(X), write('>'),write(Y),nl ,X > Y -> Winner = 'Black';  % Check if X is greater than Y
+    X < Y -> Winner = 'White';  % Check if Y is greater than X
+    compare_lists(Xs, Ys, Winner)).  % Recurse to compare the rest of the lists
