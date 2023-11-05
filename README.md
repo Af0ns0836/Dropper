@@ -3,14 +3,16 @@
 Group: Dropper_2
 
 Team members:
-
-Afonso Gouveia Dias up202006721 - 50%
-Ricardo Ribeiro Vieira up202005091 - 50%
+| Nome                         | UP            | Contribuição |
+| ------------                 | ------------  |------------  |
+| Afonso Gouveia Dias| [up202006721] |50%           |
+| Ricardo Ribeiro Vieira     | [ up202005091] |50%           |
 
 ## Installation and Execution
 
 To execute the game you simple need to download the zip file, navigate to the src directory and consult the main.pl file inside the comand line or the UI in SICStus Prolog version 4.8(this was the version the game was made on). 
-After it just run "play_game." on the terminal to start! The game works both on Windows and Linux.
+The game works both on Windows and Linux. To start the game just run:
+``` play_game. ```
 
 ## Description of the game
 
