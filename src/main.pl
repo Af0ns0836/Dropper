@@ -27,6 +27,21 @@ is_valid_move(Board, Row, Col) :-
     length(Board, NumCols),
     Row >= 0, Row < NumRows,
     Col >= 0, Col < NumCols.
+    %free_move_possible(Board, Row, Col).
+
+free_move_possible(Board) :-
+    (member(Row, Board), member(empty, Row)).
+
+% Predicate to check if a piece is adjacent to another piece diagonally and ortoganally.
+adjacent([X,Y], [X1,Y1]) :-
+    (X1 is X+1, Y1 is Y);  % right
+    (X1 is X-1, Y1 is Y);  % left
+    (X1 is X, Y1 is Y+1);  % up
+    (X1 is X, Y1 is Y-1);  % down
+    (X1 is X+1, Y1 is Y-1);  % diagonal up right
+    (X1 is X-1, Y1 is Y+1);  % diagonal up left
+    (X1 is X+1, Y1 is Y+1);  % diagonal down right
+    (X1 is X-1, Y1 is Y-1).  % diagonal down left
 
 % Custom predicate to retrieve a specific row from a list of lists.
 get_row([Row | _], 0, Row).
@@ -46,12 +61,21 @@ replace_row([Row | Rest], Index, NewRow, [Row | UpdatedRest]) :-
 play(Player, Board, NewBoard) :-
     display_board(Board),
     write(Player), write('\'s turn.'), nl,
-    get_valid_move(Board, Row, Col),
+    free_move(Board, Row, Col),
     player_piece(Player, Piece),
     make_move(Board, Row, Col, Piece, NewBoard).
 
-% Predicate to get a valid move from the player
-get_valid_move(Board, Row, Col) :-
+% Drop move predicate
+% drop_move(+Board, +).
+drop_move(Board, Row, Col):-
+    get_row(Board, Row, OldRow),
+    replace(OldRow, Col, 'X', NewRow),
+    replace_row(Board, Row, NewRow, NewBoard).
+
+% Predicate to get a valid move from the player . Free move
+% get_valid_move(+Board, -Row, -Col).
+free_move(Board, Row, Col) :-
+    %free_move_possible(Board),
     repeat,
     write('Enter the row (0-7): '),
     read(RowTerm),
@@ -72,29 +96,43 @@ get_valid_move(Board, Row, Col) :-
 % Initalize the game.
 play_game :-
     board(Board),
-    play_loop(player1, Board).
+    write('Welcome to the game of Dropper!'), nl,
+    write('Player 1 is represented by X and Player 2 is represented by O.'), nl,
+    write('1.PLAYER VS PLAYER'), nl, write('2.PLAYER VS COMPUTER'), nl,
+    read(Option),
+    (
+        Option == 1 -> write('Player vs Player selected.'), nl;
+        Option == 2 -> write('Player vs Computer selected.'), nl
+    ),
+    play_loop(player1, Board,Option).
 
 % Predicates to loop through the game.
-play_loop(_, Board) :-
+play_loop(_, Board, _) :-
     game_over(Board, Winner),
     display_board(Board),
     write('Game over! Winner: '), write(Winner), nl.
 
-play_loop(Player, Board) :-
+play_loop(Player, Board,Option) :-
     \+ game_over(Board, _), % Check if the game is not over
     play(Player, Board, NewBoard),
-    switch_player(Player, NextPlayer),
+    switch_player(Player, NextPlayer, Option),
     play_loop(NextPlayer, NewBoard).
 
 % Predicate to switch players.
-switch_player(Player, NextPlayer) :-
-    Player == player1 -> NextPlayer = player2;
-    Player == player2 -> NextPlayer = player1.
+switch_player(Player, NextPlayer, Option) :-
+    Option == 1 ->(
+        Player == player1 -> NextPlayer = player2;
+        Player == player2 -> NextPlayer = player1
+    );
+    Option == 2 ->(
+        Player == player1 -> NextPlayer = computer;
+        Player == computer -> NextPlayer = player1
+    ).
+
 
 
 % game_over(+Board, -Winner).
 game_over(Board, Winner) :-
-    write('Checking if game is over...'), nl,
     % Check if there are no empty positions left
     \+ (member(Row, Board), member(empty, Row)),
     write('No empty positions left.'), nl,
@@ -123,8 +161,6 @@ get_piece(Board, Row, Column, Piece) :-
     element_at(Column, RowList,Piece).
 
 :- dynamic visited/1.
-
-
 % Predicate to find the size of the largest connected component
 largest_connected_component(Points, SortedDescendingSizes) :-
     findall(Size, (

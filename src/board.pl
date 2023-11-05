@@ -1,5 +1,5 @@
 % Define the game board as an 8x8 grid.
-board([
+/*board([
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
@@ -7,8 +7,21 @@ board([
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O']
+    ['X', 'X', 'X', 'O', 'O', 'empty', 'X', 'O']
+]).*/
+
+
+board([
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 ]).
+
 
 
 % Define the possible player pieces.
