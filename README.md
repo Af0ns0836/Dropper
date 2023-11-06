@@ -58,7 +58,8 @@ board([
     ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 ]).
 ```
-por foto !!!!!!!!!!!
+![Captura de ecrã 2023-11-06 012238](https://github.com/Af0ns0836/Dropper/assets/114420282/a9ed7f4e-9d26-4c0a-9e2b-9633b51ade96)
+
 Example of middle state:
 ```
     [['X', 'empty', 'O', 'empty', 'O', 'empty', 'empty', 'empty'],
@@ -70,26 +71,31 @@ Example of middle state:
     ['X', 'empty', 'X', 'O', 'empty', 'empty', 'X', 'empty'],
     ['empty', 'O', 'O', 'O', 'empty', 'X', 'empty', 'empty']]
 ```
-por foto !!!!!!!!!!!
+![Captura de ecrã 2023-11-06 012409](https://github.com/Af0ns0836/Dropper/assets/114420282/99cc8849-32d5-42e7-a90a-aba0ddcf0c5f)
+
 Example of final state:
 ```
     [['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'X'],
+    ['X', 'O', 'X', 'O', 'O', 'O', 'X', 'X'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O']]
 ```
-por foto !!!!!!!!!!!
+![Captura de ecrã 2023-11-06 012722](https://github.com/Af0ns0836/Dropper/assets/114420282/ee0da053-2ff8-4e71-9d2e-87a04e81573b)
+
 
 The game reach the final state because there are no more moves to make.
 
 ### Game State Visualization
 Before the game, the user(s) is(are) asked to choose the game mode between PLAYER v PLAYER or PLAYER v COMPUTER
 
-por foto !!!!!!!!!!!!!
+![Captura de ecrã 2023-11-06 012124](https://github.com/Af0ns0836/Dropper/assets/114420282/d3cc93e1-2717-407a-abb6-a3bcbd97db20)
+![Captura de ecrã 2023-11-06 012200](https://github.com/Af0ns0836/Dropper/assets/114420282/01a6932a-545a-4256-b9b6-b0d3c0417f70)
+
+
 
 This choice is guaranteed this way:
 ```Prolog
@@ -124,7 +130,30 @@ play_loop(Player, Board, Option) :-
 
 Each move is done by inputing the row and column of the place we want to place our piece
 
-por foto!!!!!!!!!
+![Captura de ecrã 2023-11-06 012829](https://github.com/Af0ns0836/Dropper/assets/114420282/95232e88-94fa-49ab-99f4-021a7250eafd)
+
+The input is validated by:
+
+```Prolog
+free_move(Board, Row, Col) :-
+    %free_move_possible(Board),
+    repeat,
+    write('Enter the row (0-7): '),
+    read(RowTerm),
+    write('Enter the column (0-7): '),
+    read(ColTerm),
+    (
+        integer(RowTerm), integer(ColTerm),
+        RowTerm >= 0, RowTerm < 8,
+        ColTerm >= 0, ColTerm < 8,
+        Row is RowTerm,
+        Col is ColTerm,
+        is_valid_move(Board, Row, Col) ->
+        true; % Valid move, exit the loop
+        write('Invalid move. Please use valid row and column inputs.'), nl,
+        fail % Retry the loop
+    ).
+```
 
 ### List of Valid Moves
 ...
