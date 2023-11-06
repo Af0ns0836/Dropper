@@ -1,6 +1,5 @@
 % predicate to check the size of the group of pieces of a player
 check_group_size(Board, Player, SortedDescendingSizes) :-
-    write('checking group size...'), nl,
     findall([X, Y], (member(X, [0,1,2,3,4,5,6,7]), member(Y, [0,1,2,3,4,5,6,7]), get_piece(Board, X, Y, Player)), List),
     largest_connected_component(List, SortedDescendingSizes).
 
@@ -63,7 +62,6 @@ remove_elements(List, [H|T], Result) :-
 % compare_winner(+GroupSize1, +GroupSize2, -Winner).
 % Predicate to compare group sizes and determine the winner.
 compare_winner(BlackGroups, WhiteGroups, Winner) :-
-    write('Comparing group sizes...'), nl,
     compare_lists(BlackGroups, WhiteGroups, Winner).
 
 
@@ -73,6 +71,6 @@ compare_lists([], [], Winner) :-
 
 % compare_list(+List1, +List2, -Winner).
 compare_lists([X|Xs], [Y|Ys], Winner) :-
-    (write('Comparing '),write(X), write('>'),write(Y),nl ,X > Y -> Winner = 'Black';  % Check if X is greater than Y
+    (X > Y -> Winner = 'Black';  % Check if X is greater than Y
     X < Y -> Winner = 'White';  % Check if Y is greater than X
     compare_lists(Xs, Ys, Winner)).  % Recurse to compare the rest of the lists
