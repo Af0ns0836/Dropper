@@ -3,7 +3,7 @@
 Group: Dropper_2
 
 Team members:
-| Nome                         | UP            | Contribuição |
+| Name                         | UP            | Contribution |
 | ------------                 | ------------  |------------  |
 | Afonso Gouveia Dias| [up202006721] |50%           |
 | Ricardo Ribeiro Vieira     | [ up202005091] |50%           |
@@ -12,9 +12,11 @@ Team members:
 
 To execute the game you simple need to download the zip file, navigate to the src directory and consult the main.pl file inside the comand line or the UI in SICStus Prolog version 4.8(this was the version the game was made on). 
 The game works both on Windows and Linux. To start the game just run:
-``` play_game. ```
+``` play. ```
 
 ## Description of the game
+
+Dropper was designed in Abril 2023 by Andrea Chia.
 
 "Dropper" is an engrossing and strategic board game that combines tactical placement, clever maneuvers, and an intense quest for territorial supremacy. Players will face off on an 8x8 board, although variations of the game can be played on boards of different sizes, making it adaptable to your preferred challenge level.
 
