@@ -1,6 +1,7 @@
 :- consult('board.pl').
 :- consult('endgame.pl').
 :- use_module(library(lists)).
+:- use_module(library(between)).
 
 % predicate that returns the piece in a certain position, first selects the row, and then the piece itself
 % arguments, Board, the row and the column and the piece will be returned in the piece variable
@@ -16,10 +17,10 @@ make_move(Board, Row, Col, Piece, NewBoard, 'free') :-
     free_move(Board, Piece, [Row, Col], NewBoard).
 
 make_move(Board, Row, Col, 'X', NewBoard, 'drop') :-
-    write('drop move'), nl,
-    write('Piece: X'), nl,
+    write('Drop move'), nl,
+    write('Dropped on Piece: X'), nl,
     correct_drop_move(Board, Row, Col, 'X',OpponentPieceCol,OpponentPieceRow),
-    drop_move(Board, 'X', 'O', [Row, Col], NewBoard).
+    drop_move(Board, 'X', 'O', [OpponentPieceRow, OpponentPieceCol], NewBoard).
 
 make_move(Board, Row, Col, 'O', NewBoard, 'drop') :-
     write('Drop move'), nl,
@@ -29,22 +30,7 @@ make_move(Board, Row, Col, 'O', NewBoard, 'drop') :-
 
 correct_drop_move(Board, Row, Col, 'O',OpponentPieceCol,OpponentPieceRow) :-
     repeat,
-    write('Choose the piece you want to drop on:'), nl,
-    write('Row:'), read(OpponentPieceRow),
-    write('Col:'), read(OpponentPieceCol),
-    (
-        integer(OpponentPieceRow), integer(OpponentPieceCol),
-        OpponentPieceRow >= 0, OpponentPieceRow < 8,
-        OpponentPieceCol >= 0, OpponentPieceCol < 8,
-        get_piece(Board, OpponentPieceRow, OpponentPieceCol, Piece),
-        true; % Valid move, exit the loop
-        write('Invalid move. Please use valid row and column inputs.'), nl,
-        fail % Retry the loop
-    ).
-
-correct_drop_move(Board, Row, Col, 'X',OpponentPieceCol,OpponentPieceRow) :-
-    repeat,
-    write('Choose the piece you want to drop on:'), nl,
+    write('Choose the black piece you want to drop on:'), nl,
     write('Row:'), read(OpponentPieceRow),
     write('Col:'), read(OpponentPieceCol),
     (
@@ -53,7 +39,24 @@ correct_drop_move(Board, Row, Col, 'X',OpponentPieceCol,OpponentPieceRow) :-
         OpponentPieceCol >= 0, OpponentPieceCol < 8,
         get_piece(Board, OpponentPieceRow, OpponentPieceCol, Piece),
         write('Piece found: '), write(Piece), nl,
-        Piece == 'O' -> write('Valid move.'), nl,
+        Piece == 'X', true; % Valid move, exit the loop
+        write('Invalid move. Please use valid row and column inputs.'), nl,
+        fail % Retry the loop
+    ).
+
+correct_drop_move(Board, Row, Col, 'X',OpponentPieceCol,OpponentPieceRow) :-
+    repeat,
+    write('Choose the white piece you want to drop on:'), nl,
+    write('Row:'), read(OpponentPieceRow),
+    write('Col:'), read(OpponentPieceCol),
+    (
+        integer(OpponentPieceRow), integer(OpponentPieceCol),
+        OpponentPieceRow >= 0, OpponentPieceRow < 8,
+        OpponentPieceCol >= 0, OpponentPieceCol < 8,
+        is_occupied(Board, NewRow, NewCol) -> false; %retry the loop 
+        get_piece(Board, OpponentPieceRow, OpponentPieceCol, Piece),
+        write('Piece found: '), write(Piece), nl,
+        Piece == 'O',
         true; % Valid move, exit the loop
         write('Invalid move. Please use valid row and column inputs.'), nl,
         fail % Retry the loop
@@ -84,7 +87,6 @@ drop_move(Board, PlayerPiece, OpponentPiece, [OpponentPieceRow, OpponentPieceCol
     
     % Get the direction offsets based on the chosen direction.
     direction_offset(Direction, DeltaX, DeltaY),
-
     % Calculate the new position.
     NewCol is OpponentPieceCol + DeltaX,
     NewRow is OpponentPieceRow + DeltaY,
@@ -115,7 +117,6 @@ direction_offset(down-right, DeltaX, DeltaY) :- DeltaX is 1, DeltaY is 1.
 
 % Predicate for a free move.
 free_move(Board, PlayerPiece, [Row, Col], NewBoard) :-
-    is_valid_move(Board, Row, Col),
     replace_in_matrix(Board, Row, Col, PlayerPiece, NewBoard).
 
 
@@ -192,12 +193,37 @@ get_valid_move(Board, Row, Col) :-
         fail % Retry the loop
     ).
 
-play(Player, Board, NewBoard, MoveType, NextMoveType) :-
-    %display_board(Board),
+
+valid_empty_positions(Board, ValidPositions) :-
+    findall([Row, Col], (
+        between(0, 7, Row), % Iterate over rows
+        between(0, 7, Col), % Iterate over columns
+        is_valid_move(Board, Row, Col)
+    ), ValidPositions).
+
+has_empty_space(Board) :-
+    member(Row, Board),
+    member(empty, Row).
+
+no_empty_spaces(Board) :-
+    \+ has_empty_space(Board).
+
+is_occupied(Board, Row, Col) :-
+    get_piece(Board, Row, Col, Piece),
+    Piece \== 'empty'.
+
+play(Player, Board, NewBoard, MoveType, NextMoveType,ValidPositions) :-
     write(Player), write('\'s turn.'), nl,
     player_piece(Player, Piece),
     make_move(Board, Row, Col, Piece, NewBoard, MoveType),
-    next_move_type(MoveType, NextMoveType).
+    valid_empty_positions(NewBoard, ValidPositions),
+    (ValidPositions = [] ->
+        write('No valid free moves left.'), nl,
+        next_move_type('free', 'drop')
+    ;
+        write(MoveType),nl,
+        next_move_type(MoveType, NextMoveType)
+    ).
 
 
 % Predicate to get the next move type.
@@ -216,26 +242,28 @@ play_game :-
         Option == 2 -> write('Player vs Computer selected.'), nl
     ),
     display_board(Board),
-    play_loop(player1, Board, Option, 'free').
+    play_loop(black, Board, Option, 'free').
 
 
 play_loop(Player, Board, Option, 'drop') :- % Player just completed a 'drop' move
     \+ game_over(Board, _), % Check if the game is not over
-    play(Player, Board, NewBoard, 'drop', NextMoveType),
-    switch_player(Player, NextPlayer, Option),
+    play(Player, Board, NewBoard, 'drop', NextMoveType,ValidPositions),
+    write('Drop move completed.'), nl,
+    NextPlayer = Player,
     display_board(NewBoard),
     play_loop(NextPlayer, NewBoard, Option, NextMoveType).
 
+
 play_loop(Player, Board, Option, 'free') :- % Player just completed a 'free' move
     \+ game_over(Board, _), % Check if the game is not over
-    play(Player, Board, NewBoard, 'free', NextMoveType),
+    play(Player, Board, NewBoard, 'free', NextMoveType,ValidPositions),
     switch_player(Player, NextPlayer, Option),
     display_board(NewBoard),
     play_loop(NextPlayer, NewBoard, Option, NextMoveType).
 
 play_loop(Player, Board, Option, _) :- % Player has not made any move yet
     \+ game_over(Board, _), % Check if the game is not over
-    play(Player, Board, NewBoard, 'free', NextMoveType), % Default to 'free' as the first move
+    play(Player, Board, NewBoard, 'free', NextMoveType,ValidPositions), % Default to 'free' as the first move
     switch_player(Player, NextPlayer, Option),
     display_board(NewBoard),
     play_loop(NextPlayer, NewBoard, Option, NextMoveType).
@@ -250,12 +278,12 @@ play_loop(_, Board, _, _) :- % Game over
 % Predicate to switch players.
 switch_player(Player, NextPlayer, Option) :-
     Option == 1 ->(
-        Player == player1 -> NextPlayer = player2;
-        Player == player2 -> NextPlayer = player1
+        Player == black -> NextPlayer = white;
+        Player == white -> NextPlayer = black
     );
     Option == 2 ->(
-        Player == player1 -> NextPlayer = computer;
-        Player == computer -> NextPlayer = player1
+        Player == black -> NextPlayer = computer;
+        Player == computer -> NextPlayer = black
     ).
 
 
@@ -263,7 +291,7 @@ switch_player(Player, NextPlayer, Option) :-
 % game_over(+Board, -Winner).
 game_over(Board, Winner) :-
     % Check if there are no empty positions left
-    \+ (member(Row, Board), member(empty, Row)),
+    no_empty_spaces(Board),
     check_group_size(Board, 'X', BlackGroups),
     check_group_size(Board, 'O', WhiteGroups),
     compare_winner(BlackGroups, WhiteGroups, Winner).

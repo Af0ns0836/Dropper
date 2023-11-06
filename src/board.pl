@@ -1,15 +1,15 @@
 % Define the game board as an 8x8 grid.
+
 board([
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'O', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'X', 'empty', 'empty'],
+    ['X', 'X', 'X', 'X', 'X', 'O', 'empty', 'empty'],
+    ['X', 'X', 'O', 'X', 'O', 'O', 'X', 'O'],
     ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
     ['X', 'X', 'X', 'O', 'O', 'X', 'X', 'O']
 ]).
-
 
 /*
 board([
@@ -26,8 +26,8 @@ board([
 
 
 % Define the possible player pieces.
-player_piece(player1, 'X').
-player_piece(player2, 'O').
+player_piece(black, 'X').
+player_piece(white, 'O').
 
 columns([0, 1, 2, 3, 4, 5, 6, 7]).
 
