@@ -58,20 +58,20 @@ board([
     ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 ]).
 ```
-![Captura de ecrã 2023-11-06 012238](https://github.com/Af0ns0836/Dropper/assets/114420282/a9ed7f4e-9d26-4c0a-9e2b-9633b51ade96)
+![empty_board](https://github.com/Af0ns0836/Dropper/assets/82235745/26dc38f0-d8c1-497b-930d-5c436de33d49)
 
 Example of middle state:
 ```
-    [['X', 'empty', 'O', 'empty', 'O', 'empty', 'empty', 'empty'],
-    ['empty', 'empty', 'empty', 'O', 'empty', 'empty', 'empty', 'empty'],
-    ['empty', 'O', 'X', 'X', 'O', 'empty', 'empty', 'empty'],
-    ['empty', 'O', 'X', 'X', 'O', 'X', 'X', 'empty'],
-    ['empty', 'O', 'X', 'O', 'empty', 'empty', 'empty', 'empty'],
-    ['empty', 'O', 'X', 'X', 'empty', 'empty', 'empty', 'empty'],
-    ['X', 'empty', 'X', 'O', 'empty', 'empty', 'X', 'empty'],
-    ['empty', 'O', 'O', 'O', 'empty', 'X', 'empty', 'empty']]
+    [['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'X', 'O', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'O', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']]
 ```
-![Captura de ecrã 2023-11-06 012409](https://github.com/Af0ns0836/Dropper/assets/114420282/99cc8849-32d5-42e7-a90a-aba0ddcf0c5f)
+![drop_move](https://github.com/Af0ns0836/Dropper/assets/82235745/f0fc6aba-85e3-4e3e-9f25-71ee192a629a)
 
 Example of final state:
 ```
@@ -159,7 +159,7 @@ valid_empty_positions(Board, ValidPositions) :-
 ```
 ...
 ### End of Game
-The game ends when there are no more empty spaces in the board to place a piece.
+The game ends when there are no more empty spaces in the board to place a piece.It uses more predicates than these ones but these are the main ones.
 
 ```Prolog
 % game_over(+Board, -Winner).
@@ -169,16 +169,32 @@ game_over(Board, Winner) :-
     check_group_size(Board, 'X', BlackGroups),
     check_group_size(Board, 'O', WhiteGroups),
     compare_winner(BlackGroups, WhiteGroups, Winner).
+
+% compare_winner(+GroupSize1, +GroupSize2, -Winner).
+% Predicate to compare group sizes and determine the winner.
+compare_winner(BlackGroups, WhiteGroups, Winner) :-
+    compare_lists(BlackGroups, WhiteGroups, Winner).
+
+% Compare two lists element by element
+compare_lists([], [], Winner) :-
+   Winner = 'Draw'. % Both lists are equal.
+
+% compare_list(+List1, +List2, -Winner).
+compare_lists([X|Xs], [Y|Ys], Winner) :-
+    (X > Y -> Winner = 'Black';  % Check if X is greater than Y
+    X < Y -> Winner = 'White';  % Check if Y is greater than X
+    compare_lists(Xs, Ys, Winner)).  % Recurse to compare the rest of the lists
+
 ```
 ### Game State Evaluation
 
 The game state evaluation is done at the end of the game, where we find all the connected components and find the largest one. We can think of the board as a graph or tree to perform a BFS(Breadth-First Search). If there are two components from different pieces that have the same size we proceed to the next largest component. We didn't use the given predicate `value(+GameState, +Player, -Value).` because we tought it didn't fit our game structure.
-...
+
 ### Computer Plays
 The Computer plays are chosen randomly by `computer_play` that are called by `computer_move`. (this stopped working properly after drop moves were finally implemented)
 
 ## Conclusions
-The work was very well distributed between the two members of the group. We both worked on the implementation of the game, and we both worked on the report. We had some problems with the implementation of the game, mainly the 1Drop move and the search for groups at the end of the game, as well as all the verifications needed from the user's input.
+The work was very well distributed between the two members of the group. We both worked on the implementation of the game, and we both worked on the report. We had some problems with the implementation of the game, mainly the 1Drop move and the search for groups at the end of the game, as well as all the verifications needed from the user's input. Which culminated in having problems to implement the AI.
 
 ### Known Issues
 
