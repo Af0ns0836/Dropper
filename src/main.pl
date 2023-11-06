@@ -53,11 +53,9 @@ correct_drop_move(Board, Row, Col, 'X',OpponentPieceCol,OpponentPieceRow) :-
         integer(OpponentPieceRow), integer(OpponentPieceCol),
         OpponentPieceRow >= 0, OpponentPieceRow < 8,
         OpponentPieceCol >= 0, OpponentPieceCol < 8,
-        is_occupied(Board, NewRow, NewCol) -> false; %retry the loop 
         get_piece(Board, OpponentPieceRow, OpponentPieceCol, Piece),
         write('Piece found: '), write(Piece), nl,
-        Piece == 'O',
-        true; % Valid move, exit the loop
+        Piece == 'O',true; % Valid move, exit the loop
         write('Invalid move. Please use valid row and column inputs.'), nl,
         fail % Retry the loop
     ).

@@ -135,54 +135,56 @@ Each move is done by inputing the row and column of the place we want to place o
 The input is validated by:
 
 ```Prolog
-free_move(Board, Row, Col) :-
-    %free_move_possible(Board),
-    repeat,
-    write('Enter the row (0-7): '),
-    read(RowTerm),
-    write('Enter the column (0-7): '),
-    read(ColTerm),
-    (
-        integer(RowTerm), integer(ColTerm),
-        RowTerm >= 0, RowTerm < 8,
-        ColTerm >= 0, ColTerm < 8,
-        Row is RowTerm,
-        Col is ColTerm,
-        is_valid_move(Board, Row, Col) ->
-        true; % Valid move, exit the loop
-        write('Invalid move. Please use valid row and column inputs.'), nl,
-        fail % Retry the loop
-    ).
+% Predicate to check if a move is valid.
+is_valid_move(Board, Row, Col) :-
+    length(Board, NumRows),
+    length(Board, NumCols),
+    Row >= 0, Row < NumRows,
+    Col >= 0, Col < NumCols,
+    get_row(Board, Row, RowList), % Get the row
+    nth0(Col, RowList, 'empty'),
+    \+has_adjacent_pieces(Board, Row, Col).
 ```
 
 ### List of Valid Moves
+
+There isn't a predicate that lists the valid moves to the console, the valid moves are searched internally. We use this predicate:
+```Prolog
+valid_empty_positions(Board, ValidPositions) :-
+    findall([Row, Col], (
+        between(0, 7, Row), % Iterate over rows
+        between(0, 7, Col), % Iterate over columns
+        is_valid_move(Board, Row, Col)
+    ), ValidPositions).
+```
 ...
 ### End of Game
 The game ends when there are no more empty spaces in the board to place a piece.
 
 ```Prolog
+% game_over(+Board, -Winner).
 game_over(Board, Winner) :-
     % Check if there are no empty positions left
-    \+ (member(Row, Board), member(empty, Row)),
-    write('No empty positions left.'), nl,
+    no_empty_spaces(Board),
     check_group_size(Board, 'X', BlackGroups),
-    write('Black group count: '), write(BlackGroups), nl,
     check_group_size(Board, 'O', WhiteGroups),
-    write('White group count: '), write(WhiteGroups), nl,
     compare_winner(BlackGroups, WhiteGroups, Winner).
 ```
 ### Game State Evaluation
+
+The game state evaluation is done at the end of the game, where we find all the connected components and find the largest one. We can think of the board as a graph or tree to perform a BFS(Breadth-First Search). If there are two components from different pieces that have the same size we proceed to the next largest component. We didn't use the given predicate `value(+GameState, +Player, -Value).` because we tought it didn't fit our game structure.
 ...
 ### Computer Plays
-The Computer plays are chosen randomly by `computer_play` that calls `computer_move`. (this stopped working properly after drop moves were finally implemented)
+The Computer plays are chosen randomly by `computer_play` that are called by `computer_move`. (this stopped working properly after drop moves were finally implemented)
 
 ## Conclusions
-The work was very well distributed between the two members of the group. We both worked on the implementation of the game, and we both worked on the report. We had some problems with the implementation of the game ...
+The work was very well distributed between the two members of the group. We both worked on the implementation of the game, and we both worked on the report. We had some problems with the implementation of the game, mainly the 1Drop move and the search for groups at the end of the game, as well as all the verifications needed from the user's input.
 
 ### Known Issues
 
 - Missing a logical AI.
-- AI stopped working well after latest improvement to the game as it used to only have free moves before.
+- AI stopped working well after the latest improvement to the game as it used to only have free moves before.
+- Some user's input moves are not well filtered, in the case of the 1Drop move.
 
 ### Future Improvements
 
