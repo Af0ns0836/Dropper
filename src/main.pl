@@ -1,6 +1,9 @@
 :- consult('board.pl').
 :- consult('endgame.pl').
 :- use_module(library(lists)).
+:- use_module(library(random)).
+
+
 :- use_module(library(between)).
 
 % predicate that returns the piece in a certain position, first selects the row, and then the piece itself
@@ -127,6 +130,14 @@ replace([H|T], I, X, [H|R]) :-
     I1 is I - 1,
     replace(T, I1, X, R).
 
+% Randomly selects a valid move for the computer.
+computer_move(Board, Row, Col) :-
+    repeat,
+    random(0, 8, Row),
+    random(0, 8, Col),
+    is_valid_move(Board, Row, Col),
+    !.
+
 % Predicate to check if a move is valid.
 is_valid_move(Board, Row, Col) :-
     length(Board, NumRows),
@@ -235,7 +246,8 @@ play_game :-
     board(Board),
     write('Welcome to the game of Dropper!'), nl,
     write('Player 1 is represented by X and Player 2 is represented by O.'), nl,
-    write('1.PLAYER VS PLAYER'), nl, write('2.PLAYER VS COMPUTER'), nl,
+    write('1. PLAYER VS PLAYER'), nl,
+    write('2. PLAYER VS COMPUTER'), nl,
     read(Option),
     (
         Option == 1 -> write('Player vs Player selected.'), nl;
@@ -273,6 +285,25 @@ play_loop(_, Board, _, _) :- % Game over
     write('No empty positions left.'), nl,
     display_board(Board),
     write('Game over! Winner: '), write(Winner), nl.
+
+play_loop(Player, Board, Option) :-
+    \+ game_over(Board, _),
+    (Option == 1 ->   % Player vs Player
+        % display_board(Board),
+        play(Player, Board, NewBoard);
+        Option == 2 ->   % Player vs Computer
+        (
+            Player == player1 -> play(player1, Board, NewBoard);  % Humans turn
+            Player == computer -> computer_play(Board, NewBoard)  % Computers turn
+        )
+    ),
+    switch_player(Player, NextPlayer, Option),
+    play_loop(NextPlayer, NewBoard, Option).
+
+% Predicate to let the computer play its turn.
+computer_play(Board, NewBoard) :-
+    computer_move(Board, Row, Col),
+    make_move(Board, Row, Col, 'O', NewBoard).
 
 
 % Predicate to switch players.
