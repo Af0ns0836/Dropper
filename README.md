@@ -43,15 +43,105 @@ The oficial game rules are in the *https://andreachia.wordpress.com/2023/04/01/d
 ## Game Logic
 
 ### Internal Game State Representation
-...
+The game state is represented by a list of lists with the current board situation.
+
+Initial State:
+```
+board([
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
+]).
+```
+por foto !!!!!!!!!!!
+Example of middle state:
+```
+    [['X', 'empty', 'O', 'empty', 'O', 'empty', 'empty', 'empty'],
+    ['empty', 'empty', 'empty', 'O', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'O', 'X', 'X', 'O', 'empty', 'empty', 'empty'],
+    ['empty', 'O', 'X', 'X', 'O', 'X', 'X', 'empty'],
+    ['empty', 'O', 'X', 'O', 'empty', 'empty', 'empty', 'empty'],
+    ['empty', 'O', 'X', 'X', 'empty', 'empty', 'empty', 'empty'],
+    ['X', 'empty', 'X', 'O', 'empty', 'empty', 'X', 'empty'],
+    ['empty', 'O', 'O', 'O', 'empty', 'X', 'empty', 'empty']]
+```
+por foto !!!!!!!!!!!
+Example of final state:
+```
+    [['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'X'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
+    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O']]
+```
+por foto !!!!!!!!!!!
+
+The game reach the final state because there are no more moves to make.
+
 ### Game State Visualization
-...
+Before the game, the user(s) is(are) asked to choose the game mode between PLAYER v PLAYER or PLAYER v COMPUTER
+
+por foto !!!!!!!!!!!!!
+
+This choice is guaranteed this way:
+```Prolog
+play_game :-
+    board(Board),
+    write('Welcome to the game of Dropper!'), nl,
+    write('Player 1 is represented by X and Player 2 is represented by O.'), nl,
+    write('1. PLAYER VS PLAYER'), nl,
+    write('2. PLAYER VS COMPUTER'), nl,
+    read(Option),
+    (
+        Option == 1 -> write('Player vs Player selected.'), nl;
+        Option == 2 -> write('Player vs Computer selected.'), nl
+    ),
+    play_loop(player1, Board, Option).
+
+play_loop(Player, Board, Option) :-
+    \+ game_over(Board, _),
+    (Option == 1 ->   % Player vs Player
+        % display_board(Board),
+        play(Player, Board, NewBoard);
+        Option == 2 ->   % Player vs Computer
+        (
+            Player == player1 -> play(player1, Board, NewBoard);  % Humans turn
+            Player == computer -> computer_play(Board, NewBoard)  % Computers turn
+        )
+    ),
+    switch_player(Player, NextPlayer, Option),
+    play_loop(NextPlayer, NewBoard, Option).
+```
 ### Move Validation and Execution
-...
+
+Each move is done by inputing the row and column of the place we want to place our piece
+
+por foto!!!!!!!!!
+
 ### List of Valid Moves
 ...
 ### End of Game
-...
+The game ends when there are no more empty spaces in the board to place a piece.
+
+```Prolog
+game_over(Board, Winner) :-
+    % Check if there are no empty positions left
+    \+ (member(Row, Board), member(empty, Row)),
+    write('No empty positions left.'), nl,
+    check_group_size(Board, 'X', BlackGroups),
+    write('Black group count: '), write(BlackGroups), nl,
+    check_group_size(Board, 'O', WhiteGroups),
+    write('White group count: '), write(WhiteGroups), nl,
+    compare_winner(BlackGroups, WhiteGroups, Winner).
+```
 ### Game State Evaluation
 ...
 ### Computer Plays
