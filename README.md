@@ -174,7 +174,7 @@ game_over(Board, Winner) :-
 ### Game State Evaluation
 ...
 ### Computer Plays
-The Computer plays are chosen randomly by `computer_play` that calls `computer_move`. 
+The Computer plays are chosen randomly by `computer_play` that calls `computer_move`. (this stopped working properly after drop moves were finally implemented)
 
 ## Conclusions
 The work was very well distributed between the two members of the group. We both worked on the implementation of the game, and we both worked on the report. We had some problems with the implementation of the game ...
@@ -182,6 +182,7 @@ The work was very well distributed between the two members of the group. We both
 ### Known Issues
 
 - Missing a logical AI.
+- AI stopped working well after latest improvement to the game as it used to only have free moves before.
 
 ### Future Improvements
 
