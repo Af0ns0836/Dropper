@@ -6,7 +6,7 @@ Team members:
 | Name                         | UP            | Contribution |
 | ------------                 | ------------  |------------  |
 | Afonso Gouveia Dias| [up202006721] |50%           |
-| Ricardo Ribeiro Vieira     | [ up202005091] |50%           |
+| Ricardo Ribeiro Vieira     | [up202005091] |50%           |
 
 ## Installation and Execution
 
