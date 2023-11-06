@@ -62,11 +62,11 @@ The work was very well distributed between the two members of the group. We both
 
 ### Known Issues
 
-Missing a logical AI
+- Missing a logical AI.
 
 ### Future Improvements
 
-- Implement a better AI, that has reasons to make each play instead of just playing randomly
+- Implement a better AI, that has reasons to make each play instead of just playing randomly.
 - Implement a better visualization of the game, with a graphical interface.
 
 ## Bibliography
