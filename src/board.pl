@@ -1,17 +1,4 @@
 % Define the game board as an 8x8 grid.
-
-board([
-    ['X', 'X', 'X', 'O', 'O', 'X', 'empty', 'empty'],
-    ['X', 'X', 'X', 'X', 'X', 'O', 'empty', 'empty'],
-    ['X', 'X', 'O', 'X', 'O', 'O', 'X', 'O'],
-    ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'O', 'X', 'O'],
-    ['X', 'X', 'X', 'O', 'O', 'X', 'X', 'O']
-]).
-
-/*
 board([
     ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
     ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
@@ -22,7 +9,7 @@ board([
     ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
     ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty']
 ]).
-*/
+ 
 
 
 % Define the possible player pieces.
